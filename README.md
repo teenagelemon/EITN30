@@ -1,10 +1,10 @@
 # EITN30
 
-- [ ] Makefile
-- [ ] forward.sh
+- [X] Makefile
+- [X] forward.sh
 - [ ] routing.sh
 - [ ] plots.py
-- [ ] main.py
+- [X] main.py
 - [ ] client.py
 - [ ] sever.py
-- [ ] mobile_routing.sh
+- [X] mobile_routing.sh
