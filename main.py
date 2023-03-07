@@ -3,6 +3,9 @@ from tuntap import TunTap
 import struct
 import time
 from RF24 import RF24, RF24_PA_LOW, RF24_2MBPS, RF24_CRC_16
+import argparse
+global base
+base = 0
 
 PSIZE = 30
 MAXBITS = 0xFFFF
@@ -18,6 +21,9 @@ in_list = []
 out_condition = threading.Condition()
 out_list = []
 tun_condition = threading.Condition()
+
+
+role = base
 
 
 def setup():
@@ -83,7 +89,7 @@ def split_package(data: bytes) -> list:
     return splits
 
 
-def send(data: byte):
+def send(data: bytes): #Ändrade från byte till bytes 
     packages = split_package(data)
     for p in packages:
         w_radio.write(p)
@@ -95,7 +101,7 @@ def receiver():
         if run_program == False:
             print("Closing receiver")
             return
-        if (r_radio.available_pipe()):
+        if (r_radio.available_pipe()): #Verkar ej tycka om det här 
             psize = r_radio.getDynamicPayloadSize()
             if (psize < 1):
                 pack = r_radio.read(psize)
@@ -147,24 +153,33 @@ def tun_receiver():
                 send(buffer)
         tun_condition.notify_all()
 
+#Vet ej tanken med detta tbh, har nog missat något 
+#def run():
+#    role = input("base = 0, mobile = 1")
+#    setup()
+#    if (role == 0):
+#        base()
+#    elif (role == 1):
+#        mobile()
+#    else:
+#        print("wrong role")
+#        return 
 
-def run():
-    role = input("base = 0, mobile = 1")
-    setup()
-    if (role == 0):
-        base()
-    elif (role == 1):
-        mobile()
-    else:
-        print("wrong role")
-        return
 
 
 if __name__ == "__main__":
+    
+    #Detta är för att kunna läsa från makefilen 
+    parser = argparse.ArgumentParser(description='NRF24L01+ test')
+    parser.add_argument('--base', dest='base', type=int, default=0, help='Whether the unit is mobile or the base station', choices=range(0,2))
+    args = parser.parse_args()
+    base = args.base
+    
     radio_s = threading.Thread(target=transmitter, args=())
     radio_r = threading.Thread(target=receiver, args=())
     tun_s = threading.Thread(target=tun_trasmitter, args=())
     tun_r = threading.Thread(target=tun_receiver, args=())
+    
 
     radio_s.start()
     radio_r.start()
@@ -175,7 +190,7 @@ if __name__ == "__main__":
     radio_r.join()
     tun_s.join()
     tun_r.join()
-
+    setup() #La till denna så den går in i setup()
     exit_input = input("input anything to exit")
     if (len(exit_input)):
         close_threads = 1
