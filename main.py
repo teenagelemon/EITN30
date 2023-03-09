@@ -4,8 +4,8 @@ import struct
 import time
 from RF24 import RF24, RF24_PA_LOW, RF24_2MBPS, RF24_CRC_16
 import argparse
-global base
-base = 0
+global base #Ny, hämtar base från makefile 
+base = 0 # Ny standard värde så den försöker göra något iallafall 
 
 PSIZE = 30
 MAXBITS = 0xFFFF
@@ -23,7 +23,7 @@ out_list = []
 tun_condition = threading.Condition()
 
 
-role = base
+role = base #Ny, så vi har något att skicka in i setup()
 
 
 def setup():
